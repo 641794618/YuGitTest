@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<thesqlcustom>
+  
+  <!--记录统计的信息-->
+  <select>
+    <title>阴阳性统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master]]></sql_statement>
+  </select>
+  <select>
+    <title>工作量统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master]]></sql_statement>
+  </select>
+  <select>
+    <title>其他统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master]]></sql_statement>
+  </select>
+  <select>
+    <title>其他统计2</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master a where a.dsad>sadsa=dsa%%]]></sql_statement>
+  </select>
+  
+</thesqlcustom>

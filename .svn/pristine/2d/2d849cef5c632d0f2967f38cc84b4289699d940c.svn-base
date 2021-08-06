@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace CustomStatistics.Entity
+{
+
+
+
+    /// <summary>
+    /// 2020-12-25 16:58:55
+    /// 这个实体类用于缓存查询时的数据
+    /// </summary>
+    class SelectCustomNode
+    {
+        String conditionName;
+        String conditionDBName;
+        String conditionType;
+        String isLike;
+
+
+        public string IsLike { get => isLike; set => isLike = value; }
+        public string ConditionName { get => conditionName; set => conditionName = value; }
+        public string ConditionDBName { get => conditionDBName; set => conditionDBName = value; }
+        public string ConditionType { get => conditionType; set => conditionType = value; }
+    }
+}

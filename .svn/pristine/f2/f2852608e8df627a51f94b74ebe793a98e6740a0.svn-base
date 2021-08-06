@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<thesqlcustom>
+  
+  <!--记录统计的信息-->
+  <select id="1">
+    <title>阴阳性统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master]]></sql_statement>
+  </select>
+  
+  <select id="2">
+    <title>工作量统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master where 1=2 ]]></sql_statement>
+    <isNeedCondition key="1">
+      <Condition>
+        <ConditionName>ID号:</ConditionName>
+        <ConditionDBName>RIS_NO</ConditionDBName>
+        <ConditionType>text</ConditionType>
+        <isLike>1</isLike>
+      </Condition>
+      <Condition>
+        <ConditionName>姓名:</ConditionName>
+        <ConditionDBName>NAME</ConditionDBName>
+        <ConditionType>text</ConditionType>
+        <isLike>1</isLike>
+      </Condition>
+    </isNeedCondition> 
+  </select>
+  
+  <select id="3">
+    <title>其他统计</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[select * from exam_master]]></sql_statement>
+  </select>
+  
+  <select id="4">
+    <title>其他统计2</title>
+    <author></author>
+    <date></date>
+    <sql_statement><![CDATA[]]></sql_statement>
+  </select>
+  
+</thesqlcustom>

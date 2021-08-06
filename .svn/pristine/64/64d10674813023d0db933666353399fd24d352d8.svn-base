@@ -1,0 +1,252 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Xml;
+
+namespace CustomStatistics
+{
+    public partial class FormStatis : Form
+    {
+
+
+
+        public FormStatis()
+        {
+            InitializeComponent();
+            //优化样式
+            this.dataGridViewMaster(dataGridView1);
+            this.dataGridViewMaster(dataGridView2);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //最大化窗体
+            this.WindowState = FormWindowState.Maximized;    
+
+        }
+
+
+        /// <summary>
+        /// 优化数据展示样式
+        /// </summary>
+        /// <param name="dataGridView"></param>
+        private void dataGridViewMaster(DataGridView dataGridView)
+        {
+            
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            dataGridView.AllowUserToAddRows = false;//默认不可增加
+            dataGridView.AllowUserToResizeRows = false; //禁止改变行高
+            dataGridView.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridView.DefaultCellStyle.Font = new System.Drawing.Font("宋体", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+
+            //自动列宽一定要关闭！不然容不下大量列
+            //dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+
+            //背景色为白色
+            dataGridView.BackgroundColor = System.Drawing.Color.White;
+
+            //dataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            //dataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(230)))), ((int)(((byte)(180)))));
+          
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.Navy;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+
+            
+            dataGridView.EnableHeadersVisualStyles = false;
+            dataGridView.GridColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            dataGridView.ReadOnly = true;
+            dataGridView.RowHeadersVisible = true;
+       
+            dataGridView.RowTemplate.ReadOnly = true;
+
+            //设置行高
+            dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dataGridView.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+      
+
+            //默认选中整行
+            dataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
+        }
+
+        private void buttonX1_Click(object sender, EventArgs e)
+        {
+            this.dataGridView2.DataSource = OraDbCon.GetDataTable("select * from exam_master", "Data Source=192.168.1.219/orcl;User ID=tjris;Password=tjris");
+        }
+
+        /// <summary>
+        /// 2020-12-11 10:28:53 yuxz
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonX2_Click(object sender, EventArgs e)
+        {
+            //初始化xmldoc对象
+            XmlDocument xmldoc = new XmlDocument();
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.IgnoreComments = true;//忽略文档里面的注释
+            //读取路径下xml文件
+            XmlReader reader = XmlReader.Create(AppDomain.CurrentDomain.BaseDirectory+@"CustomXML\Statis.xml", settings);
+            xmldoc.Load(reader);
+
+            //得到根节点thesqlcustom
+            XmlNode xmlnode = xmldoc.SelectSingleNode("thesqlcustom");
+            //得到根节点的所有子节点
+            XmlNodeList xmlnodelist = xmlnode.ChildNodes;
+
+
+            //创建Datatable对象用于赋值图表
+            DataTable dataTableStatis = new DataTable();
+            dataTableStatis.Columns.Add("selectName");
+            dataTableStatis.Columns.Add("author");
+            dataTableStatis.Columns.Add("date");
+            dataTableStatis.Columns.Add("sql_statement");
+
+            foreach (XmlNode thesqlcustomNode in xmlnodelist)
+            {
+                // 将节点转换为元素，便于得到节点的属性值
+                XmlElement xmlele = (XmlElement)thesqlcustomNode;
+                //获取节点下的参数---即获取select节点
+                XmlNodeList getSelectNode = xmlele.ChildNodes;
+
+                //创建行并添加进datatable中
+                DataRow dataRow = dataTableStatis.NewRow();
+                dataRow["selectName"] = getSelectNode.Item(0).InnerText;
+                dataRow["author"] = getSelectNode.Item(1).InnerText;
+                dataRow["date"] = getSelectNode.Item(2).InnerText;
+                dataRow["sql_statement"] = getSelectNode.Item(3).InnerText;
+                dataTableStatis.Rows.Add(dataRow);
+
+            }
+
+            dataGridView1.DataSource = dataTableStatis;
+
+
+
+        }
+
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if(e.ColumnIndex < 0 || e.RowIndex < 0) return;
+
+            String getSql = dataGridView1.Rows[e.RowIndex].Cells["sql_statement"].Value.ToString();
+            try
+            {
+                this.dataGridView2.DataSource = OraDbCon.GetDataTable(getSql, "Data Source=192.168.1.219/orcl;User ID=tjris;Password=tjris");
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+           
+
+
+            //鼠标右击事件
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+            }
+        }
+
+        private void dataGridView2_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            for (int i = 0; i < dataGridView2.Rows.Count; i++)
+            {
+                dataGridView2.Rows[i].HeaderCell.Value = (i + 1).ToString();
+            }
+        }
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="fileName">文件路径</param>
+        /// <param name="myDGV">控件DataGridView</param>
+        private void ExportExcels(string fileName, DataGridView myDGV)
+        {
+            string saveFileName = "";
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.DefaultExt = "xls";
+            saveDialog.Filter = "Excel文件|*.xls";
+            saveDialog.FileName = fileName;
+            if (saveDialog.ShowDialog() != DialogResult.OK)
+            {
+                return; //被点了取消
+            }
+            saveFileName = saveDialog.FileName;
+
+            
+          
+
+            Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+            if (xlApp == null)
+            {
+                MessageBox.Show("无法创建Excel对象，可能您的机子未安装Excel");
+                return;
+            }
+            Microsoft.Office.Interop.Excel.Workbooks workbooks = xlApp.Workbooks;
+            Microsoft.Office.Interop.Excel.Workbook workbook = workbooks.Add(Microsoft.Office.Interop.Excel.XlWBATemplate.xlWBATWorksheet);
+            Microsoft.Office.Interop.Excel.Worksheet worksheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Worksheets[1];//取得sheet1
+                                                                                                                                  //写入标题
+            for (int i = 0; i < myDGV.ColumnCount; i++)
+            {
+                worksheet.Cells[1, i + 1] = myDGV.Columns[i].HeaderText;
+            }
+            //写入数值
+            for (int r = 0; r < myDGV.Rows.Count; r++)
+            {
+                for (int i = 0; i < myDGV.ColumnCount; i++)
+                {
+                    worksheet.Cells[r + 2, i + 1] = myDGV.Rows[r].Cells[i].Value;
+                }
+                System.Windows.Forms.Application.DoEvents();
+            }
+            worksheet.Columns.EntireColumn.AutoFit();//列宽自适应
+            if (saveFileName != "")
+            {
+                try
+                {
+                    workbook.Saved = true;
+                    workbook.SaveCopyAs(saveFileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("导出文件时出错,文件可能正被打开！\n" + ex.Message);
+                }
+            }
+            xlApp.Quit();
+            GC.Collect();//强行销毁
+            MessageBox.Show("文件： " + fileName + ".xls 保存成功", "信息提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ButtonQueryPatient_Click(object sender, EventArgs e)
+        {
+            //导出路径
+            string DeskTopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\"+ DateTime.Now.ToString("yyyy-MM-dd") + "统计报表导出.xls";
+            ExportExcels(DeskTopPath, dataGridView2);
+
+        }
+
+        private void buttonX3_Click(object sender, EventArgs e)
+        {
+            splitContainer2.Panel1Collapsed = true;
+           
+        }
+
+        private void buttonX4_Click(object sender, EventArgs e)
+        {
+            splitContainer2.Panel1Collapsed = false;
+        }
+    }
+}
